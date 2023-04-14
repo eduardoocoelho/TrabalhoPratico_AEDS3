@@ -7,7 +7,7 @@ public class Hashing {
     ArrayList<Integer> diretorio =  new ArrayList<Integer>();
 
     public Hashing() throws IOException{
-        RandomAccessFile arq = new RandomAccessFile("arquivoHash", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoHash.txt", "rw");
         int pos=0;
         diretorio.add(pos);
         arq.seek(pos);
@@ -18,6 +18,7 @@ public class Hashing {
         arq.seek(pos);
         arq.writeInt(0); //diretorio local
         arq.writeInt(0); //quantidade de elementos
+
         arq.close();
     }
 
@@ -29,7 +30,7 @@ public class Hashing {
     }
 
     public void writeArq(int id, int address, int bucket) throws IOException{
-        RandomAccessFile arq = new RandomAccessFile("arquivoHash", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoHash.txt", "rw");
         int profundidadeLocal, qtdElementos;
 
         int posBucket = diretorio.get(bucket);
@@ -89,7 +90,7 @@ public class Hashing {
 
     //pos = posição no arquivo e bucket = posição no array diretorio
     public void redirecionarchavess(int pos, int bucket) throws IOException{
-        RandomAccessFile arq = new RandomAccessFile("arquivoHash", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoHash.txt", "rw");
         arq.seek(pos);
         /*profLocal++;
         arq.writeInt(profLocal); //aumentando a profundidade local*/
@@ -117,7 +118,7 @@ public class Hashing {
     }
 
     public void readHash() throws IOException{
-        RandomAccessFile arq = new RandomAccessFile("arquivoHash", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoHash.txt", "rw");
         int pos=0;
         int cont=0;
         do{
@@ -139,7 +140,7 @@ public class Hashing {
     }
 
     public int search(int id) throws IOException{
-        RandomAccessFile arq = new RandomAccessFile("arquivoHash", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoHash.txt", "rw");
         int address=-1;
         int bucket = (int) (id%(Math.pow(2, profundidadeGlobal)));
         int pos = diretorio.get(bucket);
@@ -156,14 +157,13 @@ public class Hashing {
             }
         }
         address=-1; //se não tiver achado o elemento
-        
-        arq.close();
 
+        arq.close();
         return address;
     }
 
     public void updateAddress(int id, int address) throws IOException{
-        RandomAccessFile arq = new RandomAccessFile("arquivoHash", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoHash.txt", "rw");
         int bucket = (int) (id%(Math.pow(2, profundidadeGlobal)));
         int pos = diretorio.get(bucket);
 

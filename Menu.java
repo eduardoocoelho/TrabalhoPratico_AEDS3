@@ -139,6 +139,7 @@ public class Menu {
                 menu();
             }
         }else if(op==8){
+            Crud.reiniciar("arquivoB.txt");
             arvore = Crud.constroiArvore("arquivo.txt");
         }else if(op==9){
             System.out.println("Digite um ID: ");
@@ -152,6 +153,7 @@ public class Menu {
                 System.out.println(movie.getId()+" "+movie.getTitle());
             }
         }else if(op==10){
+            Crud.reiniciar("arquivoHash.txt");
             hash = Crud.constroiHash("arquivo.txt");
         }else if(op==11){
             System.out.println("Digite um ID: ");

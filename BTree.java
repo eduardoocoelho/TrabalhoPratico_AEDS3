@@ -119,7 +119,7 @@ public class BTree{
         writeArqIndice(raiz);
     }
     public void writeArqIndice(Node x) throws IOException {  //tam fixo por pagina = 8*7 + 8*4 + 4 = 92 bytes
-        RandomAccessFile arq = new RandomAccessFile("arquivoB", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoB.txt", "rw");
         int contPonteiro = 0;
 
         if(contPonteiro==0){
@@ -157,7 +157,7 @@ public class BTree{
         arq.close();
     }
     public int writeRec(Node x, int contPonteiro) throws IOException{
-        RandomAccessFile arq = new RandomAccessFile("arquivoB", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoB.txt", "rw");
         int pontfolha = -1;
         int cont=0;
         if(x!=null){
@@ -186,12 +186,13 @@ public class BTree{
                 arq.writeInt(pontfolha); //-1
             }
         }
+
         arq.close();
         return contPonteiro;
     }
     
     public void readArqB() throws IOException{
-        RandomAccessFile arq = new RandomAccessFile("arquivoB", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoB.txt", "rw");
         int pos=4;
         do{
             arq.seek(pos);
@@ -204,8 +205,9 @@ public class BTree{
             }
             System.out.println("pont: "+arq.readInt());
             pos+=92;
-        }while(pos<=arq.length()); 
-        arq.close();  
+        }while(pos<=arq.length());   
+
+        arq.close();
     }
 
     public int SearchArq(int id) throws IOException{
@@ -215,7 +217,7 @@ public class BTree{
     }
 
     private int SearchArq(int pos, int id) throws IOException{
-        RandomAccessFile arq = new RandomAccessFile("arquivoB", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoB.txt", "rw");
         int pontAnt=0, pontPos;
         int elemento;
         int endereco=-1;
@@ -234,6 +236,7 @@ public class BTree{
             if(elemento==id){
                 //System.out.println("ENDEREÇO ==== "+endereco);
                 achou=true;
+                arq.close();
                 return endereco;
             }else if(id<elemento && pontAnt!=-1){
                 endereco = SearchArq(pontAnt, id);
@@ -243,7 +246,6 @@ public class BTree{
             if(achou){
                 break;
             }
-            arq.close();
         }
         
         if(endereco==0 && pontAnt!=-1){
@@ -254,12 +256,14 @@ public class BTree{
             endereco=-1;
         }
         //System.out.println("ENDEREÇO 2 ==== "+endereco);
+
+        arq.close();
         return endereco;
     }
 
     public void updateAddress(int id, int address) throws IOException{
         //tam fixo por pagina = 8*7 + 8*4 + 4 = 92 bytes
-        RandomAccessFile arq = new RandomAccessFile("arquivoB", "rw");
+        RandomAccessFile arq = new RandomAccessFile("arquivoB.txt", "rw");
         int pos=4, pont;
         do{
             arq.seek(pos);
@@ -277,6 +281,7 @@ public class BTree{
             pont = arq.readInt();
             pos+=92;
         }while(pos<=arq.length());   
+
         arq.close();
     }
 }

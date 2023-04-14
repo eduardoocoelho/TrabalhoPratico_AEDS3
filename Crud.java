@@ -84,9 +84,9 @@ public class Crud {
                 if(temp.getId()==id){ //testa se e o registro procurado
                     achou = true;
                     String dataFormatada = df.format(temp.getDate());
+                    System.out.println();
                     System.out.println("Registro encontrado! Dados do registro: ");
                     System.out.println(temp.getId() +" "+ dataFormatada + " " + temp.getLanguage()+ " " + temp.getTitle() + " " + temp.getAverage() + " " + temp.getGender()); 
-                    System.out.println();
                 }
             }
             pos += tam + 4 + 1; //adiciona a quantidade de bytes para chegar no inicio do proximo registro
@@ -366,9 +366,8 @@ public class Crud {
         }else{
             System.out.println("Não foi possível localizar nenhum filme com esse ID!");
         }*/
-
+        
         arq.close();
-
         return hash;
     }
 
