@@ -256,9 +256,10 @@ public class Crud {
                     lapide = false;
                     arq.writeBoolean(lapide); //apaga o registro antigo
 
-                    int tamArq = (int) (arq.length());
-                    Menu.hash.updateAddress(novo.getId(),tamArq);
-                    Menu.arvore.updateAddress(novo.getId(),tamArq);
+                    //int tamArq = (int) (arq.length());
+                    int address = writeArq(novo, "arquivo.txt");
+                    Menu.hash.updateAddress(novo.getId(),address);
+                    Menu.arvore.updateAddress(novo.getId(),address);
 
                     writeArq(novo, "arquivo.txt"); //cria-se um novo registro no final do arquvio com o mesmo id
                 }
@@ -285,6 +286,7 @@ public class Crud {
     }
 
     public static BTree constroiArvore(String arquivo) throws IOException{
+        reiniciar("arquivoB.txt");
         RandomAccessFile arq = new RandomAccessFile(arquivo, "rw");
         BTree arvore = new BTree(2);
 
@@ -327,6 +329,7 @@ public class Crud {
     }
 
     public static Hashing constroiHash(String arquivo) throws IOException{
+        reiniciar("arquivoHash.txt");
         RandomAccessFile arq = new RandomAccessFile(arquivo, "rw");
         Hashing hash = new Hashing();
  

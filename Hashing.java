@@ -123,7 +123,7 @@ public class Hashing {
         int cont=0;
         do{
             arq.seek(pos);
-            System.out.println("Burcket "+cont);
+            System.out.println("Bucket "+cont);
             cont++;
             int profLocal = arq.readInt(); System.out.println("ProfL: "+profLocal);
             int qtd = arq.readInt(); System.out.println("Qtd: "+qtd);
