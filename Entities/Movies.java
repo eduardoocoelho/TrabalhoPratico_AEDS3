@@ -1,3 +1,5 @@
+package Entities;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -8,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-class Movies{
+public class Movies{
     static SimpleDateFormat default_dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
     static SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd", Locale.ENGLISH); //Foi necessario usar outro modelo para escrever em byte
     //pq usando o formato com a - nao estava dando certo
@@ -21,7 +23,7 @@ class Movies{
     private String gender;
 
     //construtor sem parametros
-    Movies(){
+    public Movies(){
         id = -1;
         language = "";
         title = "";

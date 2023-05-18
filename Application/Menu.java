@@ -1,6 +1,19 @@
+package Application;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Scanner;
+
+import ArchieveManipulation.Crud;
+import DataCompression.HuffmanCompression;
+import DataCompression.HuffmanDecompression;
+import DataCompression.LZWCompression;
+import DataCompression.LZWDecompression;
+import DataStructure.BTree;
+import DataStructure.Elemento;
+import DataStructure.Hashing;
+import DataStructure.InvertedList;
+import DataStructure.Sort;
+import Entities.Movies;
 
 public class Menu {
     static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
@@ -30,6 +43,8 @@ public class Menu {
         System.out.println("10 - Construir Hash");
         System.out.println("11 - Pesquisar no indice (Hash)");
         System.out.println("12 - Pesquisar na Lista Invertida");
+        System.out.println("13 - Realizar compressão dos dados");
+        System.out.println("14 - Realizar descompressão dos dados");
         System.out.print("Opção: ");
         op = Integer.parseInt(sc.nextLine());
 
@@ -208,7 +223,32 @@ public class Menu {
                 Crud.bothInvertedListSearch(avKey, genKey, genderList.getGenders()); //Pesquisar, pelos dois arquivos, filmes com o gênero e a nota informados
             }
             
+        }else if(op==13){
+            System.out.println("Opções: ");
+            System.out.println("1 - Huffman");
+            System.out.println("2 - LZW");
+            int code = sc.nextInt();
+
+            if(code==1){
+                HuffmanCompression.beginHzipping("arquivo.txt");
+            }
+            else{
+                LZWCompression.beginLzipping("arquivo.txt");
+            }
+        }else if(op==14){
+            System.out.println("Opções: ");
+            System.out.println("1 - Huffman");
+            System.out.println("2 - LZW");
+            int code = sc.nextInt();
+
+            if(code==1){
+                HuffmanDecompression.beginHunzipping("arquivo.txt.huffz");
+            }
+            else{
+                LZWDecompression.beginLunzipping("arquivo.txt.LmZWp");
+            }
         }
+        
         if(op>0){ 
             //sempre retorna ao menu inicial quando for uma opção válida
             menu();

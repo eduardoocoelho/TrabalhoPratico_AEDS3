@@ -1,5 +1,9 @@
+package DataStructure;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
+import ArchieveManipulation.Crud;
+import Entities.Movies;
 
 public class InvertedList{
     private int size = Crud.moviesArchSize(); //Tamahho do arquivo de dados (quantidade de registros válidos)

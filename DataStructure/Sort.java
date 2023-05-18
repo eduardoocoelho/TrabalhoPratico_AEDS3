@@ -1,5 +1,9 @@
+package DataStructure;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
+import ArchieveManipulation.Crud;
+import Entities.Movies;
 
 public class Sort {
     public static void distribuicao(int qtd) throws IOException{ //primeira etapa da ordenação, onde os registros serão separados em blocos de tamanho 500 e ordenados em memória principal

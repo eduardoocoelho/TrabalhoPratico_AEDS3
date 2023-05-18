@@ -1,3 +1,4 @@
+package DataStructure;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -283,14 +284,5 @@ public class BTree{
         }while(pos<=arq.length());   
 
         arq.close();
-    }
-}
-class Elemento{
-    int id;
-    int address;
-
-    public Elemento(int k, int a){
-        id = k;
-        address = a;
     }
 }

@@ -1,3 +1,4 @@
+package ArchieveManipulation;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -6,6 +7,12 @@ import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Scanner;
+
+import Application.Menu;
+import DataStructure.BTree;
+import DataStructure.Elemento;
+import DataStructure.Hashing;
+import Entities.Movies;
 
 public class Crud {
     static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
