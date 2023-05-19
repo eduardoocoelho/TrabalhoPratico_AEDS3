@@ -331,7 +331,7 @@ public class HuffmanCompression {
 	/*******************************************************************************/
 
 
-	public static void beginHzipping(String arg1) {
+	public static void beginHzipping(String arg1, int version) {
 		initHzipping();
 		CalFreq(arg1); // calculate the frequency of each digit
 		MakeNode(); // makeing corresponding nodes
@@ -339,7 +339,9 @@ public class HuffmanCompression {
 			dfs(Root, ""); // dfs to make the codes
 		fakezip(arg1); // fake zip file which will have the binary of the input
 						// to fakezipped.txt file
-		realzip("fakezipped.txt", arg1 + ".huffz"); // making the real zip
+		
+		
+		realzip("fakezipped.txt", "arquivoHuffmanCompressao" + version + ".txt"); // making the real zip
 													// according the fakezip.txt
 													// file
 		initHzipping();

@@ -338,13 +338,12 @@ public class HuffmanDecompression {
 	/************************************************************************************/
 	// again improve the to function
 	// error if only <=one character in the input file
-	public static void beginHunzipping(String arg1) {
+	public static void beginHunzipping(String arg1, int version) {
 		initHunzipping();
 		readfreq1(arg1);
 		createbin();
 		int n = arg1.length();
-		String arg2 = arg1.substring(0, n - 6);
-		readbin(arg1, arg2);
+		readbin(arg1, "arquivoHuffman" + version + ".txt");
 		initHunzipping();
 	}
 

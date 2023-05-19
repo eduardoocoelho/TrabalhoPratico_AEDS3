@@ -152,7 +152,7 @@ public class LZWCompression {
 	 * ====
 	 */
 
-	public static void Lamzip(String fileis) {
+	public static void Lamzip(String fileis, int version) {
 		Map<String, Integer> dictionary = new HashMap<String, Integer>();
 		int dictSize = 256;
 		big = "";
@@ -160,7 +160,7 @@ public class LZWCompression {
 			dictionary.put("" + (char) i, i);
 		int mpsz = 256;
 		String w = "";
-		String fileos = fileis + ".LmZWp";
+		String fileos = "arquivoLZWCompressao" + version + ".txt";
 		File filei, fileo;
 		filei = new File(fileis);
 		fileo = new File(fileos);
@@ -228,11 +228,11 @@ public class LZWCompression {
 	 * ====
 	 */
 
-	public static void beginLzipping(String arg1) {
+	public static void beginLzipping(String arg1, int version) {
 		btsz = 0;
 		big = "";
 		precalc(arg1);
-		Lamzip(arg1);
+		Lamzip(arg1, version);
 		btsz = 0;
 		big = "";
 	}

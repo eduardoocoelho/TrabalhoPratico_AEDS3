@@ -1,5 +1,11 @@
 package Application;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -19,6 +25,7 @@ public class Menu {
     static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
     public static BTree arvore;
     public static Hashing hash;
+    public static int version = 1;
     public static void main(String[] args) throws Exception{
         menu();
     }
@@ -52,7 +59,9 @@ public class Menu {
             Crud.reiniciar("arquivo.txt");
             Crud.read(); //carregar a base de dados CSV + escrever no arquivo em bytes
         }else if(op == 2){
-            Crud.readArq("arquivo.txt"); //percorre o arquivo;
+            System.out.println("Qual arquivo deseja ler: ");
+            String arq = sc.nextLine();
+            Crud.readArq(arq); //percorre o arquivo;
         }else if(op == 3){
             Movies novo = new Movies(); //novo objeto é criado
             
@@ -224,28 +233,47 @@ public class Menu {
             }
             
         }else if(op==13){
-            System.out.println("Opções: ");
-            System.out.println("1 - Huffman");
-            System.out.println("2 - LZW");
-            int code = sc.nextInt();
+            LocalTime beforeHuff = LocalTime.now();
+            HuffmanCompression.beginHzipping("arquivo.txt", version);      
+            LocalTime afterHuff = LocalTime.now();
 
-            if(code==1){
-                HuffmanCompression.beginHzipping("arquivo.txt");
-            }
-            else{
-                LZWCompression.beginLzipping("arquivo.txt");
-            }
+            LocalTime beforeLzw = LocalTime.now();
+            LZWCompression.beginLzipping("arquivo.txt", version);
+            LocalTime afterLzw = LocalTime.now();
+
+            Duration huff = Duration.between(beforeHuff, afterHuff);
+            Duration lzw = Duration.between(beforeLzw, afterLzw);
+
+            System.out.println("Tempo de execução Huffman: " + huff);
+            System.out.println("Tempo de execução LZW: " + lzw);
+
+            version++;
         }else if(op==14){
-            System.out.println("Opções: ");
-            System.out.println("1 - Huffman");
-            System.out.println("2 - LZW");
+            System.out.println("Versões disponíveis: " + (version-1));
+            System.out.println("Escolha uma versão para descompressão: ");
             int code = sc.nextInt();
 
-            if(code==1){
-                HuffmanDecompression.beginHunzipping("arquivo.txt.huffz");
+            Path path = Paths.get("arquivo.txt");
+            Files.deleteIfExists(path);
+
+            if(code <= version && code != 0){
+                LocalTime beforeHuff = LocalTime.now();
+                HuffmanDecompression.beginHunzipping("arquivoHuffmanCompressao" + code + ".txt", code);
+                LocalTime afterHuff = LocalTime.now();
+                
+                LocalTime beforeLzw = LocalTime.now();
+                LZWDecompression.beginLunzipping("arquivoLZWCompressao" + code + ".txt", code);
+                LocalTime afterLzw = LocalTime.now();
+
+                Duration huff = Duration.between(beforeHuff, afterHuff);
+                Duration lzw = Duration.between(beforeLzw, afterLzw);
+
+                System.out.println("Tempo de execução Huffman: " + huff);
+                System.out.println("Tempo de execução LZW: " + lzw);
+            
             }
             else{
-                LZWDecompression.beginLunzipping("arquivo.txt.LmZWp");
+                System.out.println("Versão Inválida!");
             }
         }
         

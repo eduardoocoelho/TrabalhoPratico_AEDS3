@@ -83,7 +83,7 @@ public class LZWDecompression {
 
 	/** ====================================================================== */
 
-	public static void Lunzip(String fileis) {
+	public static void Lunzip(String fileis, int version) {
 		int k;
 		int dictSize = 256;
 		int mpsz = 256;
@@ -92,11 +92,10 @@ public class LZWDecompression {
 		for (int i = 0; i < 256; i++)
 			dictionary.put(i, "" + (char) i);
 
-		String fileos = fileis.substring(0, fileis.length() - 6);
 
 		File filei = null, fileo = null;
 		filei = new File(fileis);
-		fileo = new File(fileos);
+		fileo = new File("arquivoLZW" + version + ".txt");
 		try {
 			FileInputStream file_input = new FileInputStream(filei);
 			DataInputStream data_in = new DataInputStream(file_input);
@@ -175,11 +174,11 @@ public class LZWDecompression {
 
 	}
 
-	public static void beginLunzipping(String arg1) {
+	public static void beginLunzipping(String arg1, int version) {
 		big1 = "";
 		bitsz1 = 0;
 		pre();
-		Lunzip(arg1);
+		Lunzip(arg1, version);
 		big1 = "";
 		bitsz1 = 0;
 	}
