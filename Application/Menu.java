@@ -26,7 +26,8 @@ public class Menu {
     public static BTree arvore;
     public static Hashing hash;
     public static int version = 1;
-    public static double sizeMainArq;
+    public static double[] sizeMainArq = new double[5];
+    public static int cont = 0;
     public static void main(String[] args) throws Exception{
         menu();
     }
@@ -99,12 +100,12 @@ public class Menu {
 
             int address = Crud.writeArq(novo, "arquivo.txt"); //metodo que passa o objeto para o arquivo 
 
-            hash.addchaves(novo.getId(), address);
-            hash = Crud.constroiHash("arquivo.txt");
+            //hash.addchaves(novo.getId(), address);
+            //hash = Crud.constroiHash("arquivo.txt");
 
             Elemento elemento = new Elemento(novo.getId(), address);
-            arvore.Insert(elemento);
-            arvore = Crud.constroiArvore("arquivo.txt");
+            //arvore.Insert(elemento);
+            //arvore = Crud.constroiArvore("arquivo.txt");
 
         }else if(op == 4){
             System.out.println("Digite o id: ");
@@ -256,16 +257,15 @@ public class Menu {
             //Calcular as formulas de compressão com o arquivo original e os arquivos das compressões
             Crud.calcularFormulas("arquivo.txt", "arquivoHuffmanCompressao" + version + ".txt", "arquivoLZWCompressao" + version + ".txt");
 
+            RandomAccessFile arqMain = new RandomAccessFile("arquivo.txt", "rw");
+            sizeMainArq[cont++] = arqMain.length();
+            arqMain.close();
+
             version++;
         }else if(op==14){
             System.out.println("Versões disponíveis: " + (version-1));
             System.out.println("Escolha uma versão para descompressão: ");
             int code = sc.nextInt();
-
-            //Armazenar o tamanho do arquivo principal antes de deletá-lo
-            RandomAccessFile arqMain = new RandomAccessFile("arquivo.txt", "rw");
-            sizeMainArq = arqMain.length();
-            arqMain.close();
 
             Path path = Paths.get("arquivo.txt");
             Files.deleteIfExists(path);
@@ -295,7 +295,9 @@ public class Menu {
                 RandomAccessFile arqCLZW = new RandomAccessFile("arquivoLZW" + code + ".txt", "rw");
                 double sizeHuff = arqCHuff.length();
                 double sizeLZW = arqCLZW.length();
-                System.out.println("Tamanho do arquivo original: " + sizeMainArq + "B");
+                for(int i = 0; i < cont; i++){
+                    System.out.println("Tamanho do arquivo original " + (i+1) + ": " + sizeMainArq[i] + "B");
+                }
                 System.out.println("Tamanho do arquivo descompactado por Huffman: " + sizeHuff + "B");
                 System.out.println("Tamanho do arquivo descompactado por LZW: " + sizeLZW + "B");
 
