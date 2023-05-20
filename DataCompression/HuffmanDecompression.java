@@ -9,111 +9,158 @@ import java.io.IOException;
 import java.util.PriorityQueue;
 
 public class HuffmanDecompression {
-	static PriorityQueue<TREE> pq1 = new PriorityQueue<TREE>();
+	static PriorityQueue<Arvore> pq1 = new PriorityQueue<Arvore>();
 	static int[] freq1 = new int[300];
-	static String[] ss1 = new String[300]; // INT TO CODE
-	static String[] btost = new String[300]; // INT TO BIN
-	static String bigone; // THE BIG STRING
-	static String temp; // TEMPORARY STRING
-	static int exbits1; // EXTRA BITS ADDED AT THE LAST TO MAKE THE FINAL ZIP
-						// CODE MULTIPLE OF 8
-	static int putit; //
-	static int cntu; // NUMBER OF freqs available
+	static String[] ss1 = new String[300]; 
+	static String[] btost = new String[300]; 
+	static String bigone; 
+	static String temp; 
+	static int exbits1;
+	static int putit;
+	static int cntu;
 
-	static class TREE implements Comparable<TREE> {
-		TREE Lchild;
-		TREE Rchild;
+	static class Arvore implements Comparable<Arvore> {
+		Arvore filhoEsq;
+		Arvore filhoDir;
 		public String deb;
 		public int Bite;
 		public int freq1nc;
 
-		public int compareTo(TREE T) {
-			if (this.freq1nc < T.freq1nc)
+		public int compareTo(Arvore arvore) {
+			if (this.freq1nc < arvore.freq1nc)
 				return -1;
-			if (this.freq1nc > T.freq1nc)
+			if (this.freq1nc > arvore.freq1nc)
 				return 1;
 			return 0;
 		}
 	}
 
-	static TREE Root;
+	static Arvore raiz;
 
-	/**********************************************************************************
-	 * freing the memory
-	 *********************************************************************************/
-	public static void initHunzipping() {
+	public static void huffmanDecompression(String archieve, int version) {
+		beginDecompression();
+		readfreq1(archieve);
+		createBinary();
+		readBinary(archieve, "arquivoHuffman" + version + ".txt");
+		beginDecompression();
+	}
+
+	public static void beginDecompression() {
 		int i;
-		if (Root != null)
-			fredfs1(Root);
-		for (i = 0; i < 300; i++)
-			freq1[i] = 0;
-		for (i = 0; i < 300; i++)
-			ss1[i] = "";
+		if (raiz != null) move(raiz);
+		for (i = 0; i < 300; i++) freq1[i] = 0;
+		for (i = 0; i < 300; i++) ss1[i] = "";
+
 		pq1.clear();
-		bigone = ""; // THE BIG STRING
-		temp = ""; // TEMPORARY STRING
-		exbits1 = 0; // EXTRA BITS ADDED AT THE LAST TO MAKE THE FINAL ZIP CODE
-						// MULTIPLE OF 8
-		putit = 0; //
+		bigone = "";
+		temp = "";
+		exbits1 = 0;
+		putit = 0;
 		cntu = 0;
 	}
 
-	/**********************************************************************************/
-	/**********************************************************************************
-	 * dfs1 to free memory
-	 *********************************************************************************/
-	public static void fredfs1(TREE now) {
+	public static void readBinary(String zip, String unz) {
+		File f1 = null, f2 = null;
+		int ok, bt;
+		Byte b;
+		int j, i;
+		bigone = "";
+		f1 = new File(zip);
+		f2 = new File(unz);
+		try {
+			FileOutputStream file_output = new FileOutputStream(f2);
+			DataOutputStream data_out = new DataOutputStream(file_output);
+			FileInputStream file_input = new FileInputStream(f1);
+			DataInputStream data_in = new DataInputStream(file_input);
+			try {
+				cntu = data_in.readInt();
+				for (i = 0; i < cntu; i++) {
+					b = data_in.readByte();
+					j = data_in.readInt();
+				}
+				exbits1 = data_in.readInt();
+			} catch (EOFException eof) {
+			}
 
-		if (now.Lchild == null && now.Rchild == null) {
+			while (true) {
+				try {
+					b = data_in.readByte();
+					bt = formatNode(b);
+					bigone += formatStringToEight(btost[bt]);
+
+					while (true) {
+						ok = 1;
+						temp = "";
+						for (i = 0; i < bigone.length() - exbits1; i++) {
+							temp += bigone.charAt(i);
+							if (got() == 1) {
+								data_out.write(putit);
+								ok = 0;
+								String s = "";
+								for (j = temp.length(); j < bigone.length(); j++) {
+									s += bigone.charAt(j);
+								}
+								bigone = s;
+								break;
+							}
+						}
+
+						if (ok == 1)
+							break;
+					}
+				} catch (EOFException eof) {
+					break;
+				}
+			}
+			file_output.close();
+			data_out.close();
+			file_input.close();
+			data_in.close();
+		} catch (IOException e) {
+			System.out.println("IO Exception =: " + e);
+		}
+
+		f1 = null;
+		f2 = null;
+	}
+
+	public static void move(Arvore now) {
+
+		if (now.filhoEsq == null && now.filhoDir == null) {
 			now = null;
 			return;
 		}
-		if (now.Lchild != null)
-			fredfs1(now.Lchild);
-		if (now.Rchild != null)
-			fredfs1(now.Rchild);
+		if (now.filhoEsq != null) move(now.filhoEsq);
+		if (now.filhoDir != null) move(now.filhoDir);
 	}
 
-	/**********************************************************************************/
-
-	/**********************************************************************************
-	 * dfs1 to make the codes
-	 *********************************************************************************/
-	// public static void dfs1(TREE now,int code,String st)
-	public static void dfs1(TREE now, String st) {
+	public static void nodes(Arvore now, String st) {
 		now.deb = st;
-		if ((now.Lchild == null) && (now.Rchild == null)) {
+		if ((now.filhoEsq == null) && (now.filhoDir == null)) {
 			ss1[now.Bite] = st;
 			return;
 		}
-		if (now.Lchild != null)
-			dfs1(now.Lchild, st + "0");
-		if (now.Rchild != null)
-			dfs1(now.Rchild, st + "1");
+		if (now.filhoEsq != null) nodes(now.filhoEsq, st + "0");
+		if (now.filhoDir != null) nodes(now.filhoDir, st + "1");
 	}
 
-	/**********************************************************************************/
-
-	/*******************************************************************************
-	 * Making all the nodes in a priority Q making the tree
-	 *******************************************************************************/
 	public static void MakeNode1() {
 		int i;
 		cntu = 0;
 		for (i = 0; i < 300; i++) {
 			if (freq1[i] != 0) {
 
-				TREE Temp = new TREE();
-				Temp.Bite = i;
-				Temp.freq1nc = freq1[i];
-				Temp.Lchild = null;
-				Temp.Rchild = null;
-				pq1.add(Temp);
+				Arvore temp = new Arvore();
+				temp.Bite = i;
+				temp.freq1nc = freq1[i];
+				temp.filhoEsq = null;
+				temp.filhoDir = null;
+				pq1.add(temp);
 				cntu++;
 			}
 
 		}
-		TREE Temp1, Temp2;
+		Arvore temp1, temp2;
 
 		if (cntu == 0) {
 			return;
@@ -126,39 +173,33 @@ public class HuffmanDecompression {
 			return;
 		}
 
-		// will there b a problem if the file is empty
-		// a bug is found if there is only one character
+		//Arquivo não pode estar vazio
 		while (pq1.size() != 1) {
-			TREE Temp = new TREE();
-			Temp1 = pq1.poll();
-			Temp2 = pq1.poll();
-			Temp.Lchild = Temp1;
-			Temp.Rchild = Temp2;
-			Temp.freq1nc = Temp1.freq1nc + Temp2.freq1nc;
-			pq1.add(Temp);
+			Arvore temp = new Arvore();
+			temp1 = pq1.poll();
+			temp2 = pq1.poll();
+			temp.filhoEsq = temp1;
+			temp.filhoDir = temp2;
+			temp.freq1nc = temp1.freq1nc + temp2.freq1nc;
+			pq1.add(temp);
 		}
-		Root = pq1.poll();
+		raiz = pq1.poll();
 	}
 
-	/*******************************************************************************/
+	public static void readfreq1(String archieve) {
 
-	/*******************************************************************************
-	 * reading the freq1 from "codes.txt"//updating ss
-	 ******************************************************************************/
-	public static void readfreq1(String cc) {
-
-		File filei = new File(cc);
+		File file = new File(archieve);
 		int fey, i;
-		Byte baital;
+		Byte bt;
 		try {
-			FileInputStream file_input = new FileInputStream(filei);
+			FileInputStream file_input = new FileInputStream(file);
 			DataInputStream data_in = new DataInputStream(file_input);
 			cntu = data_in.readInt();
 
 			for (i = 0; i < cntu; i++) {
-				baital = data_in.readByte();
+				bt = data_in.readByte();
 				fey = data_in.readInt();
-				freq1[to(baital)] = fey;
+				freq1[formatNode(bt)] = fey;
 			}
 			data_in.close();
 			file_input.close();
@@ -166,23 +207,29 @@ public class HuffmanDecompression {
 			System.out.println("IO exception = " + e);
 		}
 
-		MakeNode1(); // makeing corresponding nodes
+		MakeNode1();
 		if (cntu > 1)
-			dfs1(Root, ""); // dfs1 to make the codes
+			nodes(raiz, "");
 
 		for (i = 0; i < 256; i++) {
 			if (ss1[i] == null)
 				ss1[i] = "";
 		}
-		filei = null;
+		file = null;
 	}
 
-	/*******************************************************************************/
+	public static int formatNode(Byte bt) {
+		int ret = bt;
+		if (ret < 0) {
+			ret = ~bt;
+			ret = ret + 1;
+			ret = ret ^ 255;
+			ret += 1;
+		}
+		return ret;
+	}
 
-	/***********************************************************************************
-	 * int to bin string conversion code creating
-	 ***********************************************************************************/
-	public static void createbin() {
+	public static void createBinary() {
 		int i, j;
 		String t;
 		for (i = 0; i < 256; i++) {
@@ -200,17 +247,10 @@ public class HuffmanDecompression {
 				t += btost[i].charAt(j);
 			}
 			btost[i] = t;
-			// System.out.println(btost[i]);
 		}
 		btost[0] = "0";
 	}
 
-	/****************************************************************************/
-
-	/******************************************************************************
-	 * got yes means temp is a valid code and putit is the code's corresponding
-	 * val
-	 ******************************************************************************/
 	public static int got() {
 		int i;
 
@@ -224,28 +264,7 @@ public class HuffmanDecompression {
 
 	}
 
-	/********************************************************************************/
-
-	/***********************************************************************************
-	 * byte to int conversion
-	 ***********************************************************************************/
-	public static int to(Byte b) {
-		int ret = b;
-		if (ret < 0) {
-			ret = ~b;
-			ret = ret + 1;
-			ret = ret ^ 255;
-			ret += 1;
-		}
-		return ret;
-	}
-
-	/***********************************************************************************/
-
-	/***********************************************************************************
-	 * convert any string into eight digit string
-	 ***********************************************************************************/
-	public static String makeeight(String b) {
+	public static String formatStringToEight(String b) {
 		String ret = "";
 		int i;
 		int len = b.length();
@@ -253,98 +272,6 @@ public class HuffmanDecompression {
 			ret += "0";
 		ret += b;
 		return ret;
-	}
-
-	/***********************************************************************************/
-
-	/***********************************************************************************
-	 * unzipping function
-	 **************************************************************************************/
-	public static void readbin(String zip, String unz) {
-		File f1 = null, f2 = null;
-		int ok, bt;
-		Byte b;
-		int j, i;
-		bigone = "";
-		f1 = new File(zip);
-		f2 = new File(unz);
-		try {
-			FileOutputStream file_output = new FileOutputStream(f2);
-			DataOutputStream data_out = new DataOutputStream(file_output);
-			FileInputStream file_input = new FileInputStream(f1);
-			DataInputStream data_in = new DataInputStream(file_input);
-			try {
-				cntu = data_in.readInt();
-				System.out.println(cntu);
-				for (i = 0; i < cntu; i++) {
-					b = data_in.readByte();
-					j = data_in.readInt();
-
-					// System.out.println(ss[to(b)]);
-				}
-				exbits1 = data_in.readInt();
-				System.out.println(exbits1);
-
-			} catch (EOFException eof) {
-				System.out.println("End of File");
-			}
-
-			while (true) {
-				try {
-					b = data_in.readByte();
-					bt = to(b);
-					bigone += makeeight(btost[bt]);
-
-					// System.out.println(bigone);
-
-					while (true) {
-						ok = 1;
-						temp = "";
-						for (i = 0; i < bigone.length() - exbits1; i++) {
-							temp += bigone.charAt(i);
-							// System.out.println(temp);
-							if (got() == 1) {
-								data_out.write(putit);
-								ok = 0;
-								String s = "";
-								for (j = temp.length(); j < bigone.length(); j++) {
-									s += bigone.charAt(j);
-								}
-								bigone = s;
-								break;
-							}
-						}
-
-						if (ok == 1)
-							break;
-					}
-				} catch (EOFException eof) {
-					System.out.println("End of File");
-					break;
-				}
-			}
-			file_output.close();
-			data_out.close();
-			file_input.close();
-			data_in.close();
-		} catch (IOException e) {
-			System.out.println("IO Exception =: " + e);
-		}
-
-		f1 = null;
-		f2 = null;
-	}
-
-	/************************************************************************************/
-	// again improve the to function
-	// error if only <=one character in the input file
-	public static void beginHunzipping(String arg1, int version) {
-		initHunzipping();
-		readfreq1(arg1);
-		createbin();
-		int n = arg1.length();
-		readbin(arg1, "arquivoHuffman" + version + ".txt");
-		initHunzipping();
 	}
 
 }

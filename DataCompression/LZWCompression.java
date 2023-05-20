@@ -10,12 +10,90 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LZWCompression {
-
 	public static int btsz;
 	public static String big;
 
-	public static int btoi(Byte bt) {
-		int ret = bt;
+	public static void lzwCompression(String archieve, int version) {
+		btsz = 0;
+		big = "";
+		previousCalculation(archieve);
+		beginCompression(archieve, version);
+		btsz = 0;
+		big = "";
+	}
+
+	public static void beginCompression(String fileis, int version) {
+		Map<String, Integer> dictionary = new HashMap<String, Integer>();
+		int dictSize = 256;
+		big = "";
+		for (int i = 0; i < 256; i++) dictionary.put("" + (char) i, i);
+
+		int mpsz = 256;
+		String w = "";
+		File file, fileAux;
+		file = new File(fileis);
+		fileAux = new File("arquivoLZWCompressao" + version + ".txt");
+
+		try {
+			FileInputStream file_input = new FileInputStream(file);
+			DataInputStream data_in = new DataInputStream(file_input);
+			FileOutputStream file_output = new FileOutputStream(fileAux);
+			DataOutputStream data_out = new DataOutputStream(file_output);
+
+			data_out.writeInt(btsz);
+			Byte c;
+			int ch;
+			while (true) {
+				try {
+					c = data_in.readByte();
+					ch = byteToInt(c);
+
+					String wc = w + (char) ch;
+					if (dictionary.containsKey(wc))
+						w = wc;
+					else {
+						big += intToBinary(dictionary.get(w));
+						while (big.length() >= 8) {
+							data_out.write(stringToByte(big.substring(0, 8)));
+							big = big.substring(8, big.length());
+						}
+
+						if (mpsz < 100000) {
+							dictionary.put(wc, dictSize++);
+							mpsz += wc.length();
+						}
+						w = "" + (char) ch;
+					}
+				} catch (EOFException eof) {
+					break;
+				}
+			}
+
+			if (!w.equals("")) {
+				big += intToBinary(dictionary.get(w));
+				while (big.length() >= 8) {
+					data_out.write(stringToByte(big.substring(0, 8)));
+					big = big.substring(8, big.length());
+				}
+				if (big.length() >= 1) {
+					data_out.write(stringToByte(big));
+				}
+			}
+			data_in.close();
+			data_out.close();
+			file_input.close();
+			file_output.close();
+		} catch (IOException e) {
+			System.out.println("IO exception = " + e);
+		}
+
+		file = null;
+		fileAux = null;
+
+	}
+
+	public static int byteToInt(Byte var) {
+		int ret = var;
 		if (ret < 0) {
 			ret += 256;
 		}
@@ -23,12 +101,8 @@ public class LZWCompression {
 
 	}
 
-	/*
-	 * =========================================================================
-	 * = make the integer to bin then return btsz size's string
-	 * =========================================================================
-	 */
-	public static String fil(int inp) {
+	//Transforma os inteiros para binários
+	public static String intToBinary(int inp) {
 		String ret = "", r1 = "";
 		if (inp == 0)
 			ret = "0";
@@ -48,19 +122,9 @@ public class LZWCompression {
 		}
 		return r1;
 	}
-	/*
-	 * =========================================================================
-	 * =
-	 */
 
-	/*
-	 * =========================================================================
-	 * = string to byte
-	 * =========================================================================
-	 * =
-	 */
-
-	public static Byte strtobt(String in) {
+	//Transforma a string para bytes
+	public static Byte stringToByte(String in) {
 
 		int i, n = in.length();
 		byte ret = 0;
@@ -75,28 +139,19 @@ public class LZWCompression {
 		return r;
 	}
 
-	/*
-	 * =======================================================================
-	 */
-
-	/*
-	 * =========================================================================
-	 * = precalcs the length of the
-	 * =========================================================================
-	 */
-	public static void precalc(String fileis) {
+	public static void previousCalculation(String archieve) {
 		Map<String, Integer> dictionary = new HashMap<String, Integer>();
 		int dictSize = 256;
-		for (int i = 0; i < 256; i++)
-			dictionary.put("" + (char) i, i);
+		for (int i = 0; i < 256; i++) dictionary.put("" + (char) i, i);
+
 		int mpsz = 256;
 		String w = "";
 
-		File filei = null;
-		filei = new File(fileis);
+		File file = null;
+		file = new File(archieve);
 
 		try {
-			FileInputStream file_input = new FileInputStream(filei);
+			FileInputStream file_input = new FileInputStream(file);
 			DataInputStream data_in = new DataInputStream(file_input);
 
 			Byte c;
@@ -104,7 +159,7 @@ public class LZWCompression {
 			while (true) {
 				try {
 					c = data_in.readByte();
-					ch = btoi(c);
+					ch = byteToInt(c);
 					String wc = w + (char) ch;
 					if (dictionary.containsKey(wc))
 						w = wc;
@@ -116,7 +171,6 @@ public class LZWCompression {
 						w = "" + (char) ch;
 					}
 				} catch (EOFException eof) {
-					System.out.println("End of File");
 					break;
 				}
 			}
@@ -126,7 +180,7 @@ public class LZWCompression {
 			System.out.println("IO exception = " + e);
 		}
 
-		// if empty file
+		//Se o arquivo estiver vazio
 		if (dictSize <= 1) {
 			btsz = 1;
 		} else {
@@ -137,104 +191,8 @@ public class LZWCompression {
 				btsz++;
 			}
 		}
-		filei = null;
+		file = null;
 
-	}
-	/*
-	 * =========================================================================
-	 * ==
-	 */
-
-	/*
-	 * =========================================================================
-	 * === zipping function
-	 * =========================================================================
-	 * ====
-	 */
-
-	public static void Lamzip(String fileis, int version) {
-		Map<String, Integer> dictionary = new HashMap<String, Integer>();
-		int dictSize = 256;
-		big = "";
-		for (int i = 0; i < 256; i++)
-			dictionary.put("" + (char) i, i);
-		int mpsz = 256;
-		String w = "";
-		String fileos = "arquivoLZWCompressao" + version + ".txt";
-		File filei, fileo;
-		filei = new File(fileis);
-		fileo = new File(fileos);
-
-		try {
-			FileInputStream file_input = new FileInputStream(filei);
-			DataInputStream data_in = new DataInputStream(file_input);
-			FileOutputStream file_output = new FileOutputStream(fileo);
-			DataOutputStream data_out = new DataOutputStream(file_output);
-
-			data_out.writeInt(btsz);
-			Byte c;
-			int ch;
-			while (true) {
-				try {
-					c = data_in.readByte();
-					ch = btoi(c);
-
-					String wc = w + (char) ch;
-					if (dictionary.containsKey(wc))
-						w = wc;
-					else {
-						big += fil(dictionary.get(w));
-						while (big.length() >= 8) {
-							data_out.write(strtobt(big.substring(0, 8)));
-							big = big.substring(8, big.length());
-						}
-
-						if (mpsz < 100000) {
-							dictionary.put(wc, dictSize++);
-							mpsz += wc.length();
-						}
-						w = "" + (char) ch;
-					}
-				} catch (EOFException eof) {
-					System.out.println("End of File");
-					break;
-				}
-			}
-
-			if (!w.equals("")) {
-				big += fil(dictionary.get(w));
-				while (big.length() >= 8) {
-					data_out.write(strtobt(big.substring(0, 8)));
-					big = big.substring(8, big.length());
-				}
-				if (big.length() >= 1) {
-					data_out.write(strtobt(big));
-				}
-			}
-			data_in.close();
-			data_out.close();
-			file_input.close();
-			file_output.close();
-		} catch (IOException e) {
-			System.out.println("IO exception = " + e);
-		}
-
-		filei = null;
-		fileo = null;
-
-	}
-	/*
-	 * =========================================================================
-	 * ====
-	 */
-
-	public static void beginLzipping(String arg1, int version) {
-		btsz = 0;
-		big = "";
-		precalc(arg1);
-		Lamzip(arg1, version);
-		btsz = 0;
-		big = "";
 	}
 
 }

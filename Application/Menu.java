@@ -1,10 +1,10 @@
 package Application;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Locale;
 import java.util.Scanner;
@@ -26,6 +26,7 @@ public class Menu {
     public static BTree arvore;
     public static Hashing hash;
     public static int version = 1;
+    public static double sizeMainArq;
     public static void main(String[] args) throws Exception{
         menu();
     }
@@ -233,19 +234,27 @@ public class Menu {
             }
             
         }else if(op==13){
+            //Chamada da compressão huffman + calculo do tempo de execução
             LocalTime beforeHuff = LocalTime.now();
-            HuffmanCompression.beginHzipping("arquivo.txt", version);      
+            HuffmanCompression.huffmanCompression("arquivo.txt", version);      
             LocalTime afterHuff = LocalTime.now();
 
+            //Chamada da compressão huffman + calculo do tempo de execução
             LocalTime beforeLzw = LocalTime.now();
-            LZWCompression.beginLzipping("arquivo.txt", version);
+            LZWCompression.lzwCompression("arquivo.txt", version);
             LocalTime afterLzw = LocalTime.now();
 
+            //Calculo do tempo de execução de cada algoritmo
             Duration huff = Duration.between(beforeHuff, afterHuff);
             Duration lzw = Duration.between(beforeLzw, afterLzw);
 
+            System.out.println();
             System.out.println("Tempo de execução Huffman: " + huff);
             System.out.println("Tempo de execução LZW: " + lzw);
+            System.out.println();
+
+            //Calcular as formulas de compressão com o arquivo original e os arquivos das compressões
+            Crud.calcularFormulas("arquivo.txt", "arquivoHuffmanCompressao" + version + ".txt", "arquivoLZWCompressao" + version + ".txt");
 
             version++;
         }else if(op==14){
@@ -253,24 +262,45 @@ public class Menu {
             System.out.println("Escolha uma versão para descompressão: ");
             int code = sc.nextInt();
 
+            //Armazenar o tamanho do arquivo principal antes de deletá-lo
+            RandomAccessFile arqMain = new RandomAccessFile("arquivo.txt", "rw");
+            sizeMainArq = arqMain.length();
+            arqMain.close();
+
             Path path = Paths.get("arquivo.txt");
             Files.deleteIfExists(path);
 
             if(code <= version && code != 0){
+                //Chamada da descompressão huffman + calculo do tempo de execução
                 LocalTime beforeHuff = LocalTime.now();
-                HuffmanDecompression.beginHunzipping("arquivoHuffmanCompressao" + code + ".txt", code);
+                HuffmanDecompression.huffmanDecompression("arquivoHuffmanCompressao" + code + ".txt", code);
                 LocalTime afterHuff = LocalTime.now();
                 
+                //Chamada da descompressão lzw + calculo do tempo de execução
                 LocalTime beforeLzw = LocalTime.now();
-                LZWDecompression.beginLunzipping("arquivoLZWCompressao" + code + ".txt", code);
+                LZWDecompression.lzwDecompression("arquivoLZWCompressao" + code + ".txt", code);
                 LocalTime afterLzw = LocalTime.now();
 
+                //Calculo do tempo de execução de cada algoritmo
                 Duration huff = Duration.between(beforeHuff, afterHuff);
                 Duration lzw = Duration.between(beforeLzw, afterLzw);
 
+                System.out.println();
                 System.out.println("Tempo de execução Huffman: " + huff);
                 System.out.println("Tempo de execução LZW: " + lzw);
-            
+                System.out.println();
+
+                //Imprimir o tamanho dos arquivos gerados pelas descompactações
+                RandomAccessFile arqCHuff = new RandomAccessFile("arquivoHuffman" + code + ".txt", "rw");
+                RandomAccessFile arqCLZW = new RandomAccessFile("arquivoLZW" + code + ".txt", "rw");
+                double sizeHuff = arqCHuff.length();
+                double sizeLZW = arqCLZW.length();
+                System.out.println("Tamanho do arquivo original: " + sizeMainArq + "B");
+                System.out.println("Tamanho do arquivo descompactado por Huffman: " + sizeHuff + "B");
+                System.out.println("Tamanho do arquivo descompactado por LZW: " + sizeLZW + "B");
+
+                arqCHuff.close();
+                arqCLZW.close();
             }
             else{
                 System.out.println("Versão Inválida!");

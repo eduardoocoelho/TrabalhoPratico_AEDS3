@@ -11,39 +11,52 @@ import java.util.PriorityQueue;
 
 public class HuffmanCompression {
     
-    static PriorityQueue<TREE> pq = new PriorityQueue<TREE>();
+    static PriorityQueue<Arvore> pq = new PriorityQueue<Arvore>();
 	static int[] freq = new int[300];
 	static String[] ss = new String[300];
 	static int exbits;
 	static byte bt;
-	static int cnt; // number of different characters
+	static int cnt; //contador de caracteres diferentes
 
-	// for keeping frequncies of all the bytes
-
-	// main tree class
-
-	static class TREE implements Comparable<TREE> {
-		TREE Lchild;
-		TREE Rchild;
+	static class Arvore implements Comparable<Arvore> {
+		Arvore filhoEsq;
+		Arvore filhoDir;
 		public String deb;
 		public int Bite;
 		public int Freqnc;
 
-		public int compareTo(TREE T) {
-			if (this.Freqnc < T.Freqnc)
+		public int compareTo(Arvore arvore) {
+			if (this.Freqnc < arvore.Freqnc)
 				return -1;
-			if (this.Freqnc > T.Freqnc)
+			if (this.Freqnc > arvore.Freqnc)
 				return 1;
 			return 0;
 		}
 	}
 
-	static TREE Root;
+	static Arvore raiz;
 
-	/*******************************************************************************
-	 * calculating frequence of file fname
-	 ******************************************************************************/
+	public static void huffmanCompression(String archieve, int version) {
+		beginCompression();
+		CalFreq(archieve);
+		formatNode();
+		if (cnt > 1) nodes(raiz, "");
+		fakeCompression(archieve);
+		realCompression("arqAux.txt", "arquivoHuffmanCompressao" + version + ".txt");																							// file
+		beginCompression();
+	}
 
+	//Inicio do processo de compressão
+	public static void beginCompression() {
+		int i;
+		cnt = 0;
+		if (raiz != null) move(raiz);
+		for (i = 0; i < 300; i++) freq[i] = 0;
+		for (i = 0; i < 300; i++) ss[i] = "";
+		pq.clear();
+	}
+	
+	//Calculo da frequencia de cada digito do arquivo passado por parametro
 	public static void CalFreq(String fname) {
 		File file = null;
 		Byte bt;
@@ -56,9 +69,8 @@ public class HuffmanCompression {
 				try {
 
 					bt = data_in.readByte();
-					freq[to(bt)]++;
+					freq[binaryComversion(bt)]++;
 				} catch (EOFException eof) {
-					System.out.println("End of File");
 					break;
 				}
 			}
@@ -70,15 +82,11 @@ public class HuffmanCompression {
 		file = null;
 	}
 
-	/************************************** ============ ************************/
-
-	/***********************************************************************************
-	 * byte to binary conversion
-	 ***********************************************************************************/
-	public static int to(Byte b) {
-		int ret = b;
+	//Conversão binária dos bytes
+	public static int binaryComversion(Byte var) {
+		int ret = var;
 		if (ret < 0) {
-			ret = ~b;
+			ret = ~var;
 			ret = ret + 1;
 			ret = ret ^ 255;
 			ret += 1;
@@ -86,78 +94,44 @@ public class HuffmanCompression {
 		return ret;
 	}
 
-	/***********************************************************************************/
+	public static void move(Arvore now) {
 
-	/**********************************************************************************
-	 * freing the memory
-	 *********************************************************************************/
-	public static void initHzipping() {
-		int i;
-		cnt = 0;
-		if (Root != null)
-			fredfs(Root);
-		for (i = 0; i < 300; i++)
-			freq[i] = 0;
-		for (i = 0; i < 300; i++)
-			ss[i] = "";
-		pq.clear();
-	}
-
-	/**********************************************************************************/
-	/**********************************************************************************
-	 * dfs to free memory
-	 *********************************************************************************/
-	public static void fredfs(TREE now) {
-
-		if (now.Lchild == null && now.Rchild == null) {
+		if (now.filhoEsq == null && now.filhoDir == null) {
 			now = null;
 			return;
 		}
-		if (now.Lchild != null)
-			fredfs(now.Lchild);
-		if (now.Rchild != null)
-			fredfs(now.Rchild);
+		if (now.filhoEsq != null) move(now.filhoEsq);
+		if (now.filhoDir != null) move(now.filhoDir);
 	}
 
-	/**********************************************************************************/
-
-	/**********************************************************************************
-	 * dfs to make the codes
-	 *********************************************************************************/
-	public static void dfs(TREE now, String st) {
+	public static void nodes(Arvore now, String st) {
 		now.deb = st;
-		if ((now.Lchild == null) && (now.Rchild == null)) {
+		if ((now.filhoEsq == null) && (now.filhoDir == null)) {
 			ss[now.Bite] = st;
 			return;
 		}
-		if (now.Lchild != null)
-			dfs(now.Lchild, st + "0");
-		if (now.Rchild != null)
-			dfs(now.Rchild, st + "1");
+		if (now.filhoEsq != null) nodes(now.filhoEsq, st + "0");
+		if (now.filhoDir != null) nodes(now.filhoDir, st + "1");
 	}
 
-	/**********************************************************************************/
-
-	/*******************************************************************************
-	 * Making all the nodes in a priority Q making the tree
-	 *******************************************************************************/
-	public static void MakeNode() {
+	//Formando os nós da árvore
+	public static void formatNode() {
 		int i;
 		pq.clear();
 
 		for (i = 0; i < 300; i++) {
 			if (freq[i] != 0) {
-				TREE Temp = new TREE();
-				Temp.Bite = i;
-				Temp.Freqnc = freq[i];
-				Temp.Lchild = null;
-				Temp.Rchild = null;
-				pq.add(Temp);
+				Arvore temp = new Arvore();
+				temp.Bite = i;
+				temp.Freqnc = freq[i];
+				temp.filhoEsq = null;
+				temp.filhoDir = null;
+				pq.add(temp);
 				cnt++;
 			}
 
 		}
-		TREE Temp1, Temp2;
+		Arvore temp1, temp2;
 
 		if (cnt == 0) {
 			return;
@@ -170,75 +144,37 @@ public class HuffmanCompression {
 			return;
 		}
 
-		// will there b a problem if the file is empty
-		// a bug is found if there is only one character
+		//O arquivo não pode estar vazio
 		while (pq.size() != 1) {
-			TREE Temp = new TREE();
-			Temp1 = pq.poll();
-			Temp2 = pq.poll();
-			Temp.Lchild = Temp1;
-			Temp.Rchild = Temp2;
-			Temp.Freqnc = Temp1.Freqnc + Temp2.Freqnc;
-			pq.add(Temp);
+			Arvore temp = new Arvore();
+			temp1 = pq.poll();
+			temp2 = pq.poll();
+			temp.filhoEsq = temp1;
+			temp.filhoDir = temp2;
+			temp.Freqnc = temp1.Freqnc + temp2.Freqnc;
+			pq.add(temp);
 		}
-		Root = pq.poll();
+		raiz = pq.poll();
 	}
 
-	/*******************************************************************************/
+	//Criar um arquivo auxiliar para colocar os simbolos binarios
+	public static void fakeCompression(String archieve) {
 
-	/*******************************************************************************
-	 * encrypting
-	 *******************************************************************************/
-	public static void encrypt(String fname) {
-		File file = null;
+		File file, fileaux;
+		//int i;
 
-		file = new File(fname);
+		file = new File(archieve);
+		fileaux = new File("arqAux.txt");
 		try {
 			FileInputStream file_input = new FileInputStream(file);
 			DataInputStream data_in = new DataInputStream(file_input);
-			while (true) {
-				try {
-
-					bt = data_in.readByte();
-					freq[bt]++;
-				} catch (EOFException eof) {
-					System.out.println("End of File");
-					break;
-				}
-			}
-			file_input.close();
-			data_in.close();
-
-		} catch (IOException e) {
-			System.out.println("IO Exception =: " + e);
-		}
-		file = null;
-	}
-
-	/*******************************************************************************/
-
-	/*******************************************************************************
-	 * fake zip creates a file "fakezip.txt" where puts the final binary codes
-	 * of the real zipped file
-	 *******************************************************************************/
-	public static void fakezip(String fname) {
-
-		File filei, fileo;
-		int i;
-
-		filei = new File(fname);
-		fileo = new File("fakezipped.txt");
-		try {
-			FileInputStream file_input = new FileInputStream(filei);
-			DataInputStream data_in = new DataInputStream(file_input);
-			PrintStream ps = new PrintStream(fileo);
+			PrintStream ps = new PrintStream(fileaux);
 
 			while (true) {
 				try {
 					bt = data_in.readByte();
-					ps.print(ss[to(bt)]);
+					ps.print(ss[binaryComversion(bt)]);
 				} catch (EOFException eof) {
-					System.out.println("End of File");
 					break;
 				}
 			}
@@ -250,28 +186,24 @@ public class HuffmanCompression {
 		} catch (IOException e) {
 			System.out.println("IO Exception =: " + e);
 		}
-		filei = null;
-		fileo = null;
+		file = null;
+		fileaux = null;
 
 	}
 
-	/*******************************************************************************/
-
-	/*******************************************************************************
-	 * real zip according to codes of fakezip.txt (fname)
-	 *******************************************************************************/
-	public static void realzip(String fname, String fname1) {
-		File filei, fileo;
-		int i, j = 10;
+	//Criar o arquivo comprimido
+	public static void realCompression(String archieve, String archieveAux) {
+		File file, fileAux;
+		int i; //j = 10;
 		Byte btt;
 
-		filei = new File(fname);
-		fileo = new File(fname1);
+		file = new File(archieve);
+		fileAux = new File(archieveAux);
 
 		try {
-			FileInputStream file_input = new FileInputStream(filei);
+			FileInputStream file_input = new FileInputStream(file);
 			DataInputStream data_in = new DataInputStream(file_input);
-			FileOutputStream file_output = new FileOutputStream(fileo);
+			FileOutputStream file_output = new FileOutputStream(fileAux);
 			DataOutputStream data_out = new DataOutputStream(file_output);
 
 			data_out.writeInt(cnt);
@@ -283,7 +215,7 @@ public class HuffmanCompression {
 				}
 			}
 			long texbits;
-			texbits = filei.length() % 8;
+			texbits = file.length() % 8;
 			texbits = (8 - texbits) % 8;
 			exbits = (int) texbits;
 			data_out.writeInt(exbits);
@@ -309,8 +241,6 @@ public class HuffmanCompression {
 					}
 
 					exbits = (int) texbits;
-					System.out.println("extrabits: " + exbits);
-					System.out.println("End of File");
 					break;
 				}
 			}
@@ -318,32 +248,14 @@ public class HuffmanCompression {
 			data_out.close();
 			file_input.close();
 			file_output.close();
-			System.out.println("output file's size: " + fileo.length());
+			System.out.println("output file's size: " + fileAux.length());
 
 		} catch (IOException e) {
 			System.out.println("IO exception = " + e);
 		}
-		filei.delete();
-		filei = null;
-		fileo = null;
+		file.delete();
+		file = null;
+		fileAux = null;
 	}
 
-	/*******************************************************************************/
-
-
-	public static void beginHzipping(String arg1, int version) {
-		initHzipping();
-		CalFreq(arg1); // calculate the frequency of each digit
-		MakeNode(); // makeing corresponding nodes
-		if (cnt > 1)
-			dfs(Root, ""); // dfs to make the codes
-		fakezip(arg1); // fake zip file which will have the binary of the input
-						// to fakezipped.txt file
-		
-		
-		realzip("fakezipped.txt", "arquivoHuffmanCompressao" + version + ".txt"); // making the real zip
-													// according the fakezip.txt
-													// file
-		initHzipping();
-	}
 }

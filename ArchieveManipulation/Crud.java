@@ -584,4 +584,44 @@ public class Crud {
         avArq.close();
         genArq.close();
     }
+
+    public static void calcularFormulas(String arquivoMain, String arqCompressedHuff, String arqCompressedLZW) throws IOException{
+		RandomAccessFile arqMain = new RandomAccessFile(arquivoMain, "rw");
+		RandomAccessFile arqCHuff = new RandomAccessFile(arqCompressedHuff, "rw");
+        RandomAccessFile arqCLZW = new RandomAccessFile(arqCompressedLZW, "rw");
+
+		double sizeMain = arqMain.length();
+		double sizeHuff = arqCHuff.length();
+        double sizeLZW = arqCLZW.length();
+		System.out.println("Tamanho do arquivo original: "+ sizeMain + "B");
+		System.out.println("Tamanho do arquivo compactado com Huffman: "+ sizeHuff + "B");
+        System.out.println("Tamanho do arquivo compactado com LZW: "+ sizeLZW + "B");
+        System.out.println();
+
+		double  divHuff = sizeHuff/sizeMain;
+        double divLZW = sizeLZW / sizeMain;
+		double prHuff = 100 * (1 - divHuff);
+        double prLZW = 100 * (1 - divLZW);
+		System.out.println("A taxa de compressão com Huffman foi: " + divHuff);
+        System.out.println("A taxa de compressão com LZW foi: " +divLZW);
+        System.out.println("O fator de compressão com Huffman foi: " + prHuff);
+		System.out.println("O fator de compressão com LZW foi: " +prLZW);
+        System.out.println();
+
+		divHuff = (double) sizeMain/sizeHuff;
+        divLZW = (double) sizeMain/sizeLZW;
+		double gcHuff = 100 * log(divHuff);
+        double gcLZW = 100 * log(divLZW);
+		System.out.println("O ganho de compressão com Huffman foi: " + gcHuff);
+        System.out.println("O ganho de compressão com LZW foi: " + gcLZW);
+        System.out.println();
+
+		arqMain.close();
+		arqCHuff.close();
+        arqCLZW.close();
+	}
+
+    public static double log(double valor) {
+        return Math.log(valor) / Math.log(2.71828182846);
+    }
 }
