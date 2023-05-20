@@ -248,7 +248,6 @@ public class HuffmanCompression {
 			data_out.close();
 			file_input.close();
 			file_output.close();
-			System.out.println("output file's size: " + fileAux.length());
 
 		} catch (IOException e) {
 			System.out.println("IO exception = " + e);
