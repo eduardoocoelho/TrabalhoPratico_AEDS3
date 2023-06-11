@@ -252,4 +252,9 @@ public class Movies{
             i++;
         }
     }
+
+    public String toString() {  
+        String dataFormatada = df.format(release_date);
+        return title + " " + language + " " + dataFormatada + " " + average + " " + gender;         
+    }
 }

@@ -15,11 +15,13 @@ import DataCompression.HuffmanDecompression;
 import DataCompression.LZWCompression;
 import DataCompression.LZWDecompression;
 import DataStructure.BTree;
-import DataStructure.Elemento;
+//import DataStructure.Elemento;
 import DataStructure.Hashing;
 import DataStructure.InvertedList;
 import DataStructure.Sort;
 import Entities.Movies;
+import PatternMatching.BoyerMoore;
+import PatternMatching.ForcaBruta;
 
 public class Menu {
     static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
@@ -54,6 +56,7 @@ public class Menu {
         System.out.println("12 - Pesquisar na Lista Invertida");
         System.out.println("13 - Realizar compressão dos dados");
         System.out.println("14 - Realizar descompressão dos dados");
+        System.out.println("15 - Realizar busca por padrão");
         System.out.print("Opção: ");
         op = Integer.parseInt(sc.nextLine());
 
@@ -98,12 +101,12 @@ public class Menu {
             String gd = sc.nextLine();
             novo.setGender(gd);
 
-            int address = Crud.writeArq(novo, "arquivo.txt"); //metodo que passa o objeto para o arquivo 
+            //int address = Crud.writeArq(novo, "arquivo.txt"); //metodo que passa o objeto para o arquivo 
 
             //hash.addchaves(novo.getId(), address);
             //hash = Crud.constroiHash("arquivo.txt");
 
-            Elemento elemento = new Elemento(novo.getId(), address);
+            //Elemento elemento = new Elemento(novo.getId(), address);
             //arvore.Insert(elemento);
             //arvore = Crud.constroiArvore("arquivo.txt");
 
@@ -248,7 +251,7 @@ public class Menu {
             //Calculo do tempo de execução de cada algoritmo
             Duration huff = Duration.between(beforeHuff, afterHuff);
             Duration lzw = Duration.between(beforeLzw, afterLzw);
-
+ 
             System.out.println();
             System.out.println("Tempo de execução Huffman: " + huff);
             System.out.println("Tempo de execução LZW: " + lzw);
@@ -307,6 +310,35 @@ public class Menu {
             else{
                 System.out.println("Versão Inválida!");
             }
+        }else if(op==15){
+            BoyerMoore bm = new BoyerMoore();
+            ForcaBruta fb = new ForcaBruta();
+
+            System.out.println("Qual padrão você deseja procurar no arquivo?");
+            String padrao = sc.nextLine();
+
+            //Chamada do casamento por Boyer Moore + calculo do tempo de execução
+            LocalTime beforeBm = LocalTime.now();
+            bm.readArq("arquivo.txt", padrao);
+            LocalTime afterBm = LocalTime.now();
+
+            //Chamada do casamento por Força Bruta + calculo do tempo de execução
+            LocalTime beforeFb = LocalTime.now();
+            fb.readArq("arquivo.txt", padrao);
+            LocalTime afterFb = LocalTime.now();
+
+            //Calculo do tempo de execução de cada algoritmo
+            Duration dBm = Duration.between(beforeBm, afterBm);
+            Duration dFb = Duration.between(beforeFb, afterFb);
+
+            System.out.println();
+            System.out.println("Tempo de execução Boyer Moore: " + dBm);
+            System.out.println("Tempo de execução Força Bruta: " + dFb);
+            System.out.println();
+
+            fb.results();
+            System.out.println();
+            bm.results();
         }
         
         if(op>0){ 
